@@ -11,9 +11,16 @@ public class UserInputEntryPanel : MonoBehaviour
     [SerializeField] private Text _typeInputText;
     [SerializeField] private Button _addButton;
     [SerializeField] private Button _exitButton;
+
+    private WarningMessage _warning;
     
     public static event Action OnEntryPanelAddButtonPressed;
     public static event Action OnExitButtonPressed;
+
+    void Awake() 
+    {
+        _warning = GetComponent<WarningMessage>();
+    }
     void Start()
     {
         _addButton?.onClick.AddListener(AddPlayer);
@@ -24,7 +31,14 @@ public class UserInputEntryPanel : MonoBehaviour
     {
         PlayerDatabase.instance.AddToDatabase(_nameInputText.text, _ageInputText.text, _typeInputText.text);
 
-        OnEntryPanelAddButtonPressed?.Invoke();
+        if(_nameInputText.text == "" || _ageInputText.text == "")
+        {
+           _warning.ShowWarning();
+        }
+        else
+        {
+            OnEntryPanelAddButtonPressed?.Invoke();
+        }
 
     }
 
