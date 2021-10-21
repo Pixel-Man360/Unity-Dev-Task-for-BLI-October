@@ -10,7 +10,6 @@ public class PlayerDatabase : MonoBehaviour
 {
     private string _databaseName = "URI=file:PlayerDatabase.db";
  
-
     public static PlayerDatabase instance;
     void Awake()
     {
@@ -39,7 +38,7 @@ public class PlayerDatabase : MonoBehaviour
         }
     }
     
-    string[] ReadDatabase(string comm)
+    public string[] PullFromDatabase(int index)
     {
         string[] data = new string[3];
         using(var connection = new SqliteConnection(_databaseName))
@@ -48,7 +47,7 @@ public class PlayerDatabase : MonoBehaviour
 
             using(var command = connection.CreateCommand())
             {
-                command.CommandText = comm;
+                command.CommandText = "SELECT * FROM PlayerData WHERE rowid = " + index + ";";
                 using(IDataReader reader = command.ExecuteReader())
                 {
                     while(reader.Read())
@@ -69,9 +68,18 @@ public class PlayerDatabase : MonoBehaviour
         return data;
     }
 
-    string[,] ReadDatabaseSearch(string comm)
+   
+   
+    public void AddToDatabase(string name, string age, string type) 
     {
-        string[,] data = new string[10000,3];
+       UseDatabase("INSERT INTO PlayerData(name, age, type) VALUES ('" + name + "','" + age + "', '" + type + "');");
+    }
+
+    public List<string[]> PullFromDatabase(string name)
+    {
+        string nameToSearch = "'" + name + "%" + "'";
+        string[] val = new string[3];
+        List<string[]> data = new List<string[]>();
 
         using(var connection = new SqliteConnection(_databaseName))
         {
@@ -79,16 +87,17 @@ public class PlayerDatabase : MonoBehaviour
 
             using(var command = connection.CreateCommand())
             {
-                command.CommandText = comm;
+                command.CommandText = "SELECT * FROM PlayerData WHERE name LIKE " + nameToSearch + ";";
                 using(IDataReader reader = command.ExecuteReader())
                 {
                     int index = 0;
 
                     while(reader.Read())
                     {
-                        data[index,0] = Convert.ToString(reader["name"]);
-                        data[index,1] = Convert.ToString(reader["age"]);
-                        data[index,2] = Convert.ToString(reader["type"]);
+                        val[0] = Convert.ToString(reader["name"]);
+                        val[1] = Convert.ToString(reader["age"]);
+                        val[2] = Convert.ToString(reader["type"]);
+                        data.Add(val);
                         index++;
                     }
 
@@ -102,24 +111,8 @@ public class PlayerDatabase : MonoBehaviour
 
         return data;
     }
-   
-    public void AddToDatabase(string name, string age, string type) 
-    {
-       UseDatabase("INSERT INTO PlayerData(name, age, type) VALUES ('" + name + "','" + age + "', '" + type + "');");
-    }
 
 
-    public string[] PullFromDatabase(int index)
-    {
-       return ReadDatabase("SELECT * FROM PlayerData WHERE rowid = " + index + ";");
-    }
-
-    public string[,] PullFromDatabase(string name)
-    {
-       string nameToSearch = "'" + name + "%" + "'";
-       return ReadDatabaseSearch("SELECT * FROM PlayerData WHERE name LIKE " + nameToSearch + ";");
-
-    }
 
     public int GetDatabaseSize()
     {

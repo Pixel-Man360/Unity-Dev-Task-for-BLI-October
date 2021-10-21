@@ -317,6 +317,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: da58470de3c808344b34e3100e80692c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _searchInputField: {fileID: 1077011081}
   _searchText: {fileID: 1226989313}
   _searchButton: {fileID: 2012676107}
   _resetButton: {fileID: 1859559629}
